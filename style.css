@@ -1,4 +1,11 @@
-body { font-family: sans-serif; text-align: center; background: #eee; margin: 0; padding: 20px; }
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #eee;
+  margin: 0;
+  padding: 20px;
+}
+
 #container {
   height: 400px;
   width: 100%;
@@ -8,6 +15,7 @@ body { font-family: sans-serif; text-align: center; background: #eee; margin: 0;
   border-radius: 8px;
   margin-bottom: 20px;
 }
+
 video, #focus-canvas {
   position: absolute;
   height: 100%;
@@ -16,6 +24,7 @@ video, #focus-canvas {
   top: 0;
   object-fit: contain;
 }
+
 .status-overlay {
   position: absolute;
   top: 10px;
@@ -27,6 +36,7 @@ video, #focus-canvas {
   pointer-events: none;
   z-index: 10;
 }
+
 #capture-btn {
   padding: 15px 30px;
   font-size: 18px;
@@ -36,6 +46,9 @@ video, #focus-canvas {
   border-radius: 50px;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
 }
-#capture-btn:active { transform: scale(0.95); }
-#hidden-canvas { display: none; }
+
+#capture-btn:active {
+  transform: scale(0.95);
+}
