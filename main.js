@@ -11,7 +11,7 @@ window.onload = function() {
 
 //async enables your program to start a potentially long-running task and still be able to be responsive to other events while that task runs, rather than having to wait until that task has finished. // https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Async_JS/Introducing
 async function startCamera() {
-  const status = document.getElementById("status"); //Status text element
+  const status = document.getElementById("status"); //GetElementById() allows to access an element from the HTML document by the ID.
   const constraints = {
     //Setting up the ideal resolutin in 1920*1080
     //There are 2 type of facingMode: user (front camera) and environment (back camera). 
@@ -22,28 +22,30 @@ async function startCamera() {
     }
   };
 
+  // try is the function that will be executed, and catch is the function that will be executed if an error occurs in the try block. // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    //getUserMedia is a web API that allows web applications to access the media devices.
+    const stream = await navigator.mediaDevices.getUserMedia(constraints); //getUserMedia() is a method of the MediaDevices interface that prompts the user for permission to use a media input which produces a MediaStream with tracks containing the requested types of media. // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
     const video = document.getElementById("video");
     video.srcObject = stream;
     track = stream.getVideoTracks()[0];
-    status.innerText = "相機已啟動";
+    status.innerText = "Camera is turned on";
 
     setInterval(autoAdjustExposure, 1000);
 
   } catch (error) {
     console.error(error);
-    status.innerText = "錯誤: " + error.message;
+    status.innerText = "Error: " + error.message;
     if (error.name === "OverconstrainedError" || error.name === "NotFoundError") {
       try {
         const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.getElementById("video");
         video.srcObject = fallbackStream;
         track = fallbackStream.getVideoTracks()[0];
-        status.innerText = "使用預設相機";
+        status.innerText = "Using default camera";
         setInterval(autoAdjustExposure, 1000);
       } catch (e) {
-        status.innerText = "無法開啟相機";
+        status.innerText = "Failed to turn on camera";
       }
     }
   }
@@ -71,7 +73,7 @@ async function autoAdjustExposure() {
 
   const capabilities = track.getCapabilities();
   if (!capabilities.exposureCompensation) {
-    document.getElementById("brightness-info").innerText = "硬體不支援手動曝光";
+    document.getElementById("brightness-info").innerText = "Not supported";
     return;
   }
 
@@ -95,12 +97,12 @@ async function autoAdjustExposure() {
         advanced: [{ exposureCompensation: currentEV }]
       });
     } catch (e) {
-      console.warn("曝光調整失敗:", e);
+      console.warn("Failed to adjust exposure:", e);
     }
   }
 
   document.getElementById("brightness-info").innerText = 
-    `亮度: ${Math.round(brightness)} | EV: ${currentEV.toFixed(1)}`;
+    `Brightness: ${Math.round(brightness)} | EV: ${currentEV.toFixed(1)}`;
 }
 
 function registerEvents() {
@@ -111,11 +113,11 @@ function registerEvents() {
   toggleBtn.addEventListener("click", function() {
     isAutoExposureActive = !isAutoExposureActive;
     if (isAutoExposureActive) {
-      this.innerText = "自動曝光: ON";
-      this.style.backgroundColor = "#2ecc71"; // 變成綠色
+      this.innerText = "Auto Exposure: ON";
+      this.style.backgroundColor = "#2ecc71"; // Change to green
     } else {
-      this.innerText = "自動曝光: OFF";
-      this.style.backgroundColor = "#7f8c8d"; // 變回灰色
+      this.innerText = "Auto Exposure: OFF";
+      this.style.backgroundColor = "#7f8c8d"; // Change back to gray
     }
   });
   
@@ -146,8 +148,8 @@ async function takePhoto() {
     link.download = `IMG_${timestamp}.jpg`;
     link.click();
     const status = document.getElementById("status");
-    status.innerText = "✅ 已儲存！";
-    setTimeout(() => { status.innerText = "相機運作中"; }, 2000);
+    status.innerText = "Saved";
+    setTimeout(() => { status.innerText = "Camera is running"; }, 2000);
   }
 }
 
@@ -169,7 +171,7 @@ async function applyManualFocus(x, y) {
       });
     }
   } catch (err) {
-    console.warn("對焦失敗:", err);
+    console.warn("Manual focus failed:", err);
   }
   setTimeout(() => { canvas.width = canvas.width; }, 1500);
 }
