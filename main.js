@@ -1,15 +1,20 @@
-let track = null;
-let currentEV = 0; 
-let isAutoExposureActive = false; // 新增：控制自動曝光開關
+//set up global variables
+let track = null; //For camera track
+let currentEV = 0; //Set up a variable to store current exposure compensation value
+let isAutoExposureActive = false; //Flag to indicate if auto exposure is active (For turn on it through the button)
 
+//When the page open, wake up the camera and register event listeners
 window.onload = function() {
-  startCamera();
+  startCamera(); 
   registerEvents();
 };
 
+//async enables your program to start a potentially long-running task and still be able to be responsive to other events while that task runs, rather than having to wait until that task has finished. // https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Async_JS/Introducing
 async function startCamera() {
-  const status = document.getElementById("status");
+  const status = document.getElementById("status"); //Status text element
   const constraints = {
+    //Setting up the ideal resolutin in 1920*1080
+    //There are 2 type of facingMode: user (front camera) and environment (back camera). 
     video: {
       width: { ideal: 1920 },
       height: { ideal: 1080 },
