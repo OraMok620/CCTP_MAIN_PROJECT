@@ -217,8 +217,7 @@ function registerEvents() {
       this.style.backgroundColor = "#595959";
     }
   });
-  
-  // Manual focus on click
+  // Manual focus on click (within video area)
   container.addEventListener("click", function(e) {
     const { offsetX, offsetY } = calculateOffset();
     const x = (e.offsetX - offsetX) / (container.offsetWidth - offsetX * 2);
@@ -227,32 +226,12 @@ function registerEvents() {
       applyManualFocus(x, y);
     }
   });
-
   document.getElementById("capture-btn").addEventListener("click", takePhoto);
 }
 
-// Capture and download photo
-async function takePhoto() {
-  const video = document.getElementById("video");
-  const hiddenCanvas = document.getElementById("hidden-canvas");
-  const context = hiddenCanvas.getContext("2d");
-  if (video.videoWidth > 0) {
-    hiddenCanvas.width = video.videoWidth;
-    hiddenCanvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
-    const imageData = hiddenCanvas.toDataURL("image/jpeg", 0.9);
-    const link = document.createElement("a");
-    const timestamp = new Date().getTime();
-    link.href = imageData;
-    link.download = `IMG_${timestamp}.jpg`;
-    link.click();
-    const status = document.getElementById("status");
-    status.innerText = "Saved";
-    setTimeout(() => { status.innerText = "Camera is running"; }, 2000);
-  }
-}
+//Notes: For function applyManualFocus and function calculateOffset, they work together to allow the user to tap on the video feed to set a focus point.
 
-// Apply manual focus at clicked position
+//Apply manual focus let the web application look like a real camera app, which give better experience to user.
 async function applyManualFocus(x, y) {
   if (!track) return;
   const video = document.getElementById("video");
@@ -260,7 +239,7 @@ async function applyManualFocus(x, y) {
   const ctx = canvas.getContext('2d');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-  ctx.strokeStyle = "cyan";
+  ctx.strokeStyle = "green";
   ctx.lineWidth = 6;
   ctx.strokeRect(video.videoWidth * x - 40, video.videoHeight * y - 40, 80, 80);
   try {
@@ -289,4 +268,32 @@ function calculateOffset() {
     oy = (ch - (cw / vw) * vh) / 2;
   }
   return { offsetX: ox, offsetY: oy };
+}
+
+//Capture and download photo
+async function takePhoto() {
+  const video = document.getElementById("video");
+  const hiddenCanvas = document.getElementById("hidden-canvas");
+  const context = hiddenCanvas.getContext("2d");
+  //Ensure video is ready before capturing
+  if (video.videoWidth > 0) {
+    hiddenCanvas.width = video.videoWidth;
+    hiddenCanvas.height = video.videoHeight;
+    //Draw current video frame to canvas and convert to JPEG data URL for downloading.
+    context.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+    //toDataURL() is a method of the HTMLCanvasElement interface that returns a data URL containing a representation of the image in the format specified by the type parameter.
+    const imageData = hiddenCanvas.toDataURL("image/jpeg", 0.9);
+    //Create a temporary link element to trigger the download of the captured image.
+    const link = document.createElement("a");
+    //Use timestamp in filename to ensure uniqueness and prevent overwriting previous photos.
+    const timestamp = new Date().getTime();
+    //Set the href of the link to the image data and trigger a click to start the download.
+    link.href = imageData;
+    link.download = `IMG_${timestamp}.jpg`;
+    link.click();
+    //Update status to show that the photo has been saved, then revert back to camera status after a short delay for better user feedback.
+    const status = document.getElementById("status");
+    status.innerText = "Saved";
+    setTimeout(() => { status.innerText = "Camera is running"; }, 2000);
+  }
 }
