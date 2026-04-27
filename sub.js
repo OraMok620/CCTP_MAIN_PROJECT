@@ -210,10 +210,10 @@ function registerEvents() {
     isAutoExposureActive = !isAutoExposureActive;
     if (isAutoExposureActive) {
       //UI feedback.
-      this.innerText = "Auto adjustment: ON";
+      this.innerText = "Adjustment: ON";
       this.style.backgroundColor = "#23b000";
     } else {
-      this.innerText = "Auto adjustment: OFF";
+      this.innerText = "Adjustment: OFF";
       this.style.backgroundColor = "#595959";
     }
   });
