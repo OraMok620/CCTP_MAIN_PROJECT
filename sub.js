@@ -120,42 +120,40 @@ function calculateBrightness(video) {
   return weightedSum / totalWeight;
 }
 
+//*IMPORTANT PART: EXPOSURE ADJUSTMENT* (Important level: 5 out of 5)
+
 // Smart exposure adjustment with smoothing and cooldown
 async function adjustExposureSmoothly() {
-  // Check cooldown
+  // Check cooldown, if more than 0, decrement and exit for waiting before next adjustment.
   if (adjustmentCooldown > 0) {
     adjustmentCooldown--;
     return;
   }
-  
   const video = document.getElementById("video");
+  //*Get video track capabilities, here also important for this project, because we need to check if the camera supports exposure compensation (Following line) before trying to adjust it. 
   const capabilities = track.getCapabilities();
-  
   // Check if exposure compensation is supported
   if (!capabilities.exposureCompensation) {
     document.getElementById("brightness-info").innerText = "Not supported";
     return;
   }
-  
-  // Get current brightness with center-weighting
+  // Get current brightness with weiighting between 0 to 255.
   const rawBrightness = calculateBrightness(video);
-  
   // Apply exponential smoothing to reduce noise
-  filteredBrightness = SMOOTHING_FACTOR * rawBrightness + 
-                       (1 - SMOOTHING_FACTOR) * filteredBrightness;
-  
+  filteredBrightness = SMOOTHING_FACTOR * rawBrightness + (1 - SMOOTHING_FACTOR) * filteredBrightness;
   // Store brightness history for scene analysis
-  brightnessHistory.push(filteredBrightness);
-  if (brightnessHistory.length > 10) brightnessHistory.shift();
-  
-  // Get dynamic target range based on scene
-  let targetMin = 100;
-  let targetMax = 160;
-  
+  brightnessHistory.push(filteredBrightness); //Add the newest brightness value to the history array, which will be used to analyze recent scene changes and adjust target brightness range dynamically.
+  // Keep only the last 10 brightness values to analyze recent scene changes without overloading memory.
+  if (brightnessHistory.length > 10) {
+    brightnessHistory.shift();//Remove oldest brightness value from the history array to maintain a manageable size while still providing enough data for analysis.
+  }
+  //Set the range for target brightness.
+  let targetMin = 100; //Too dark if lower than 100
+  let targetMax = 160; //Vice versa.
   // If scene has high contrast, use wider tolerance
-  if (brightnessHistory.length >= 5) {
-    const variance = calculateVariance(brightnessHistory);
-    if (variance > 500) {
+  if (brightnessHistory.length >= 5) { //set at least 5.
+    const variance = calculateVariance(brightnessHistory); //Calculate the variance of the brightness history to determine how much the brightness has been changing recently, which can indicate whether the scene is stable or has high contrast.
+    if (variance > 500) { //Higher variance higher contrast.
       targetMin = 85;
       targetMax = 175;
     }
