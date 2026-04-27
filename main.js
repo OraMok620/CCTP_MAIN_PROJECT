@@ -94,7 +94,7 @@ async function autoAdjustExposure() {
   if (changed) {
     try {
       await track.applyConstraints({
-        advanced: [{ exposureCompensation: currentEV }]
+        advanced: [{ exposureMode: 'continuous', exposureCompensation: currentEV }]
       });
     } catch (e) {
       console.warn("Failed to adjust exposure:", e);
