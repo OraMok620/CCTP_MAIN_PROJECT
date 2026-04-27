@@ -150,7 +150,7 @@ async function adjustExposureSmoothly() {
   //Set the range for target brightness.
   let targetMin = 100; //Too dark if lower than 100
   let targetMax = 160; //Vice versa.
-  // If scene has high contrast, use wider tolerance
+  //If scene has high contrast, use wider tolerance
   if (brightnessHistory.length >= 5) { //set at least 5.
     const variance = calculateVariance(brightnessHistory); //Calculate the variance of the brightness history to determine how much the brightness has been changing recently, which can indicate whether the scene is stable or has high contrast.
     if (variance > 500) { //Higher variance higher contrast.
@@ -158,11 +158,16 @@ async function adjustExposureSmoothly() {
       targetMax = 175;
     }
   }
-  
+  //Notes:
+  // "min" = minimum EV value camera supports (usually -2 to -4)
+  // "max" = maximum EV value camera supports (usually 2 to 4)
+  // "step" = smallest increment camera can adjust (usually 0.166 or 0.333)
   const { min, max, step } = capabilities.exposureCompensation;
-  let changed = false;
-  
-  // Apply adjustment with deadband to prevent hunting
+  let changed = false; //Flag to track if adjusted exposure.
+  //Apply adjustment with deadband to prevent hunting
+  //Too bright then make it darker, vice versa, too dark then make it brighter. 
+  //However, only if outside of the deadband range to prevent constant small adjustments that can cause flickering.
+  //DEADBAND is a threshold value that creates a "dead zone" around the target brightness range, preventing adjustments when the brightness is close enough to the target, which helps to avoid constant small adjustments that can lead to flickering.
   if (filteredBrightness > targetMax + DEADBAND && currentEV > min) {
     currentEV = Math.max(min, currentEV - step);
     changed = true;
@@ -170,10 +175,10 @@ async function adjustExposureSmoothly() {
     currentEV = Math.min(max, currentEV + step);
     changed = true;
   }
-  
-  // Apply the exposure change
+  // Apply the exposure change to the camera.
   if (changed) {
     try {
+      //applyConstraints tells camera to use new exposure value.
       await track.applyConstraints({
         advanced: [{ exposureCompensation: currentEV }]
       });
@@ -182,33 +187,34 @@ async function adjustExposureSmoothly() {
       console.warn("Failed to adjust exposure:", e);
     }
   }
-  
-  // Update display with brightness and EV only
+  // Update display with brightness and EV information for debugging and user feedback.
   document.getElementById("brightness-info").innerText = 
     `Brightness: ${Math.round(filteredBrightness)} | EV: ${currentEV.toFixed(2)}`;
 }
 
-// Helper function to calculate variance in brightness history
+//Helper function to calculate variance in brightness history.
 function calculateVariance(values) {
-  const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-  return variance;
+  //Firstly, calculate the average.
+  const average = values.reduce((a, b) => a + b, 0) / values.length;
+  //Secondly, calculate the variance.
+  const variance = values.reduce((sum, val) => sum + Math.pow(val - average, 2), 0) / values.length;
+  return variance;//Higher variance equals more change in scene.
 }
 
-// Register all button and touch events
+//User Interaction and Event Handling
 function registerEvents() {
   const container = document.getElementById("container");
   const toggleBtn = document.getElementById("toggle-exposure-btn");
-
   // Auto exposure toggle button
   toggleBtn.addEventListener("click", function() {
     isAutoExposureActive = !isAutoExposureActive;
     if (isAutoExposureActive) {
+      //UI feedback.
       this.innerText = "Auto adjustment: ON";
-      this.style.backgroundColor = "#2ecc71";
+      this.style.backgroundColor = "#23b000";
     } else {
       this.innerText = "Auto adjustment: OFF";
-      this.style.backgroundColor = "#7f8c8d";
+      this.style.backgroundColor = "#595959";
     }
   });
   
