@@ -37,6 +37,13 @@ video, #focus-canvas {
   z-index: 10;
 }
 
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  align-items: center;
+}
+
 #capture-btn {
   padding: 15px 30px;
   font-size: 18px;
@@ -49,6 +56,17 @@ video, #focus-canvas {
   transition: transform 0.1s;
 }
 
-#capture-btn:active {
+#toggle-exposure-btn {
+  padding: 15px 20px;
+  font-size: 16px;
+  background-color: #7f8c8d;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#capture-btn:active, #toggle-exposure-btn:active {
   transform: scale(0.95);
 }

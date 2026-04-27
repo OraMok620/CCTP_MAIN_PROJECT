@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>Camera Focus & Auto Exposure</title>
+  <title>CCTP_Project by Oi Shun</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
   <link rel="stylesheet" href="style.css">
 </head>
@@ -17,7 +17,10 @@
     <div id="brightness-info" style="position:absolute; bottom:10px; right:10px; color:yellow; font-size:12px; pointer-events:none;"></div>
   </div>
 
-  <button id="capture-btn">press</button>
+  <div class="button-group">
+    <button id="capture-btn">Take photo</button>
+    <button id="toggle-exposure-btn">Auto adjustment</button>
+  </div>
 
   <canvas id="hidden-canvas" style="display:none;"></canvas>
 
